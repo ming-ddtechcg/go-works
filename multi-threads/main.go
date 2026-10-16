@@ -30,16 +30,21 @@ func main() {
 
 	c := &process.Controller{}
 
-	threadGroup.AddThreadWithImplement("controller", c)
-	threadGroup.AddThreadWithImplement("controller", c)
+	threadGroup.AddThreadWithoutImplement("controller")
 
 	var p *process.Process
 	for i := 1; i < 4; i++ {
 		p = &process.Process{Name: "thread-" + strconv.Itoa(i)}
-		threadGroup.AddThreadWithImplement(strconv.Itoa(i), p)
+		threadGroup.AddThread(strconv.Itoa(i), p)
 	}
 
 	time.Sleep(2 * time.Second)
+
+	// attach the controller implement into the controller thread
+	threadGroup.AttachImplementWithThreadName("controller",c)
+
+	// add another controller thread to test the rejection
+	threadGroup.AddThreadWithoutImplement("controller")
 
 	isAllAlive := threadGroup.IsAllAliveCheck()
 	fmt.Printf("All threads are alive state %t\n", isAllAlive)

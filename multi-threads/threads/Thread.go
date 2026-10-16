@@ -46,6 +46,21 @@ func (t *Thread) Run() {
 	}()
 }
 
+func (t *Thread) AttachImplement(implement Task) {
+	if implement != nil {
+		fmt.Fprintf(os.Stderr, "thread-%s attach the implement\n", t.Name)
+
+		// check if the previous implement is still running. if yes, end it
+		if t.Implement != nil {
+			t.Implement.EndTask()
+		}
+
+		t.Implement = implement
+		t.Implement.EnterLoop()
+	}
+
+}
+
 // Terminate stops the thread and waits for it to exit. It is safe to call
 // more than once.
 func (t *Thread) Terminate() {

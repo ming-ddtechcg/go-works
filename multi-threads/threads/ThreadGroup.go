@@ -14,11 +14,11 @@ type ThreadGroup struct {
 	threadMutex    sync.Mutex
 }
 
-func (tg *ThreadGroup) AddThread(name string) {
-	tg.AddThreadWithImplement(name, nil)
+func (tg *ThreadGroup) AddThreadWithoutImplement(name string) {
+	tg.AddThread(name, nil)
 }
 
-func (tg *ThreadGroup) AddThreadWithImplement(name string, implement Task) {
+func (tg *ThreadGroup) AddThread(name string, implement Task) {
 	defer tg.threadMutex.Unlock()
 
 	if name == "" {
@@ -59,6 +59,38 @@ func (tg *ThreadGroup) AddThreadWithImplement(name string, implement Task) {
 
 	tg.Threads = append(tg.Threads, thread)
 	(*thread).Run()
+}
+
+func (tg *ThreadGroup) AttachImplementWithThreadName(name string, implement Task) {
+	if name == "" || implement == nil {
+		return
+	}
+
+	thread := tg.findThreadByName(name)
+
+	if thread != nil {
+		if (*thread).IsAlive() {
+			tg.threadMutex.Lock()
+			(*thread).AttachImplement(implement)
+			tg.threadMutex.Unlock()
+		}
+	}
+}
+
+func (tg *ThreadGroup) findThreadByName(name string) *Thread {
+
+	threads := tg.snapshot()
+	if len(threads) == 0 {
+		return nil
+	}
+
+	for _, thread := range threads {
+		if thread != nil && name == (*thread).Name {
+			return thread
+		}
+	}
+
+	return nil
 }
 
 // snapshot returns a copy of the thread list so callers can iterate
