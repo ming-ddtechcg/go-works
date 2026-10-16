@@ -18,13 +18,14 @@ func (p *Process) EnterLoop() {
 
 	go func() {
 		for {
-			fmt.Fprintf(os.Stderr, "*** process (%s) is running ***\n", p.Name)
+			fmt.Fprintf(os.Stderr, "\t*** process (%s) is running ***\n", p.Name)
 
 			<-time.After(1 * time.Second)
 
 			p.endMutex.Lock()
 			if p.end {
 				p.endMutex.Unlock()
+				fmt.Fprintf(os.Stderr, "\t\t--> process (%s) exits -->\n", p.Name)
 				return
 			}
 			p.endMutex.Unlock()

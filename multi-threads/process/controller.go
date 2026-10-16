@@ -17,13 +17,14 @@ func (c *Controller) EnterLoop() {
 
 	go func() {
 		for {
-			fmt.Fprintf(os.Stderr, "*** controller is running ***\n")
+			fmt.Fprintf(os.Stderr, "\t*** controller is running ***\n")
 
 			<-time.After(2 * time.Second)
 
 			c.endMutex.Lock()
 			if c.end {
 				c.endMutex.Unlock()
+				fmt.Fprintf(os.Stderr, "\t\t--> controller exits -->\n")
 				return
 			}
 			c.endMutex.Unlock()
